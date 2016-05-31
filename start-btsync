@@ -2,6 +2,10 @@
 
 set -eo pipefail
 
+#show the env
+echo "The BTSECRET is - $BTSECRET"
+echo "The SNYC Directory is - $SYNCPATH"
+
 #check if there is a secret key set for BTSECRT in evironment variables if not, generate one
 if [ ! -z "$BTSECRET" ]; then
  SECRET=$BTSECRET
