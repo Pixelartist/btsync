@@ -1,0 +1,39 @@
+#!/bin/bash
+
+set -eo pipefail
+
+#check if there is a secret key set in evironment variables if not, generate one
+if [ ! -z "$BTSECRET" ]; then
+ $SECRET = $BTSECRET
+ else
+ SECRET=${@:-`btsync --generate-secret`}
+fi
+
+echo "Starting btsync with secret: $SECRET"
+
+#making sure the config is not there
+rm -f /btsync/btsync.pid
+
+echo "{
+    \"device_name\": \"Sync Server\",
+    \"listening_port\": 55555,
+    \"storage_path\": \"/btsync/.sync\",
+    \"pid_file\": \"/var/run/btsync/btsync.pid\",
+    \"check_for_updates\": false,
+    \"use_upnp\": false,
+    \"download_limit\": 0,
+    \"upload_limit\": 0,
+    \"shared_folders\": [
+        {
+            \"secret\": \"$SECRET\",
+            \"dir\": \"$SYNCPATH\",
+            \"use_relay_server\": true,
+            \"use_tracker\": true,
+            \"use_dht\": false,
+            \"search_lan\": true,
+            \"use_sync_trash\": false
+        }
+    ]
+}" > /btsync/btsync.conf
+
+btsync --config /btsync/btsync.conf --nodaemon
